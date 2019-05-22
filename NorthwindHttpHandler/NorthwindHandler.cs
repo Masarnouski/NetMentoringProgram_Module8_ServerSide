@@ -18,7 +18,7 @@ namespace NorthwindHttpHandler
 		{
             
 			NameValueCollection queryString;
-			if (context.Request.QueryString != null && context.Request.QueryString.HasKeys())
+			if (context.Request.QueryString.HasKeys())
 			{
 				queryString = context.Request.QueryString;
 			}
@@ -35,10 +35,14 @@ namespace NorthwindHttpHandler
 			ReportFormat format = this.ParseReportFormat(context.Request);
 			using (DataModel model = new DataModel())
 			{
-         
-                Generator generator = new Generator(model.Orders.AsQueryable(), queryString);
 
-				try
+                OrdersFilter filter = new OrdersFilter(model.Orders.AsQueryable(), queryString);
+
+			    var filteredOrdersQuery = filter.GetFilteredOrdersQuery();
+
+			    Generator generator = new Generator(filteredOrdersQuery);
+
+                try
 				{
 					generator.CreateReport(context.Response, format);
 				}
